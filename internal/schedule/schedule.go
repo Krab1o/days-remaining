@@ -11,12 +11,18 @@ import (
 	"github.com/go-co-op/gocron/v2"
 )
 
+func remove(s []data.Sending, i int) []data.Sending {
+    s[i] = s[len(s)-1]
+    return s[:len(s)-1]
+}
+
 func SetupScheduler(function any, bot any) gocron.Scheduler {
 	s, _ := gocron.NewScheduler()
 
 	if _, err := os.Stat(directoryPath); errors.Is(err, os.ErrNotExist) {
 		createDirectory()
 	}
+
 	file, err := os.ReadFile(dataPath)
 	if (err != nil) {
 		log.Println(err)
@@ -61,13 +67,13 @@ func AddSendJob(
 
 	vals := []data.Sending{}
 	json.Unmarshal(file, &vals)
-	log.Print(vals)
 
 	for i := 0; i < len(vals); i++ {
 		if (vals[i].ChatID == chatID) {
 			vals = remove(vals, i)
 		}
-	}	
+	}
+
 	_, _ = scheduler.NewJob(
 		gocron.DailyJob(
 			1,

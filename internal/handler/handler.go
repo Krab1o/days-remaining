@@ -47,7 +47,10 @@ func SendMessage(bot *tgbotapi.BotAPI, chatID int64) {
 	bot.Send(msg)
 }
 
-func HandleUpdates(bot *tgbotapi.BotAPI, scheduler gocron.Scheduler) {
+func HandleUpdates(
+	bot *tgbotapi.BotAPI, 
+	scheduler gocron.Scheduler,
+	) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -65,7 +68,7 @@ func HandleUpdates(bot *tgbotapi.BotAPI, scheduler gocron.Scheduler) {
 						update.Message.Chat.ID, 
 						fmt.Sprintf(
 							data.SuccessChangeText, 
-							fmt.Sprintf("%d:%d",
+							fmt.Sprintf("%02d:%02d",
 								parsedTime.Hour(),
 								parsedTime.Minute(), 
 							),

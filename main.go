@@ -23,7 +23,6 @@ func main() {
 	}
 
 	bot.Debug = true
-	
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	s := sc.SetupScheduler(handler.SendMessage, bot)
