@@ -1,11 +1,16 @@
 package data
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Mailing struct {
-	ChatID	int			`json:"ID"`
+	ChatID		int			`json:"ID"`
 	SendTime 	time.Time	`json:"time"`
-	Date	time.Time	`json:"date"`
+	Date		time.Time	`json:"date"`
+	CronID		uuid.UUID	`json:"cronID"`
 }
 
 type Command struct{

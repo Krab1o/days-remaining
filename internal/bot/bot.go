@@ -22,7 +22,6 @@ func SetDate(sc gocron.Scheduler, update data.Update) {
 	parsedDate, ok := parseDate(update.Message.Text); if ok {
 		log.Println(parsedDate)
 		addSendJob(sc, update.Message.Chat.ID, time.Time{}, parsedDate)
-		updateTime(update.Message.Chat.ID, time.Time{}, parsedDate)
 		msg = fmt.Sprintf(
 			data.SuccessDateChangeText, 
 			fmt.Sprintf("%02d\\.%02d\\.%04d",
