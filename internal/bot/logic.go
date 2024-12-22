@@ -19,7 +19,6 @@ func parseDate(msg string) (time.Time, bool) {
 	if index := expr.FindStringIndex(msg); index != nil {
 		//We take second argument right after "/set_date"
 		sendDate := strings.Split(msg[index[0]:index[1]], " ")[1]
-		msg = fmt.Sprintf(data.SuccessDateChangeText, sendDate)
 		if parsedDate, err := time.Parse(data.DateLayout, sendDate); err != nil {
 			log.Println(err)
 		} else {
@@ -38,7 +37,6 @@ func parseTime(msg string) (time.Time, bool) {
 	if index := expr.FindStringIndex(msg); index != nil {
 		//We take second argument right after "/set_time"
 		sendTime := strings.Split(msg[index[0]:index[1]], " ")[1]
-		msg = fmt.Sprintf(data.SuccessTimeChangeText, sendTime)
 		if parsedTime, err := time.Parse(data.TimeLayout, sendTime); err != nil {
 			log.Println(err)
 		} else {
@@ -48,7 +46,7 @@ func parseTime(msg string) (time.Time, bool) {
 	return time.Time{}, false
 }
 
-func sendDaily(mailing data.Mailing) {
+func dailyMessage(mailing data.Mailing) {
 	duration := mailing.Date.Sub(time.Now())
 	msg := fmt.Sprintf(
 		data.DailyText,

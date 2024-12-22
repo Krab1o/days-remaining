@@ -16,10 +16,30 @@ func remove(s []data.Mailing, i int) []data.Mailing {
     return s[:len(s)-1]
 }
 
-func updateTime(chatID int, newSendTime time.Time) data.Mailing {
+func updateTime(chatID int, newSendTime time.Time, newDate time.Time) data.Mailing {
 	file, err := os.ReadFile(dataPath)
 	if (err != nil) {
 		log.Println(err)
+	}
+
+	timeChanged := true 
+	dateChanged := true
+
+	if (newSendTime == time.Time{}) {
+		timeChanged = false
+		newSendTime, err = time.Parse(data.TimeLayout, time.Now().Format(data.TimeLayout))
+		log.Print(newSendTime)
+		if (err != nil) {
+			log.Println(err)
+		}
+	}
+	if (newDate == time.Time{}) {
+		dateChanged = false
+		newDate, err = time.Parse(data.DateLayout, time.Now().Format(data.DateLayout))
+		log.Print(newDate)
+		if (err != nil) {
+			log.Println(err)
+		}
 	}
 
 	mailings := []data.Mailing{}
@@ -33,71 +53,33 @@ func updateTime(chatID int, newSendTime time.Time) data.Mailing {
 		}
 	}
 
-	if (updatedMailing == data.Mailing{}) {
-		currentDate, err := time.Parse(data.DateLayout, time.Now().String())
-		if err != nil {
-			log.Println(err)
-		}
-		updatedMailing = data.Mailing{
-			ChatID: chatID,
-			Date: currentDate,
-			SendTime: newSendTime,
-		}
-	} else {
-		updatedMailing.SendTime = newSendTime
-	}
-
-	mailings = append(mailings, updatedMailing)
-
-	dataBinary, err := json.MarshalIndent(mailings, "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	writeFile(dataBinary)
-
-	return updatedMailing
-}
-
-func updateDate(chatID int, newDate time.Time) {
-	file, err := os.ReadFile(dataPath)
-	if (err != nil) {
-		log.Println(err)
-	}
-
-	mailings := []data.Mailing{}
-	json.Unmarshal(file, &mailings)
-	var updatedMailing data.Mailing
-
-	for i := 0; i < len(mailings); i++ {
-		if (mailings[i].ChatID == chatID) {
-			updatedMailing = mailings[i]
-			mailings = remove(mailings, i)
-		}
-	}
+	log.Print(timeChanged)
+	log.Print(dateChanged)
 
 	if (updatedMailing == data.Mailing{}) {
-		currentTime, err := time.Parse(data.TimeLayout, time.Now().String())
-		if err != nil {
-			log.Println(err)
-		}
 		updatedMailing = data.Mailing{
 			ChatID: chatID,
 			Date: newDate,
-			SendTime: currentTime,
+			SendTime: newSendTime,
 		}
 	} else {
-		updatedMailing.Date = newDate
+		if (timeChanged) {
+			updatedMailing.SendTime = newSendTime
+		}
+		if (dateChanged) {
+			updatedMailing.Date = newDate
+		}
 	}
 
+	log.Print(updatedMailing)
 	mailings = append(mailings, updatedMailing)
 
 	dataBinary, err := json.MarshalIndent(mailings, "", "  ")
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	writeFile(dataBinary)
+	return updatedMailing
 }
 
 func SetupScheduler() gocron.Scheduler {
@@ -112,24 +94,24 @@ func SetupScheduler() gocron.Scheduler {
 		log.Println(err)
 	}
 
-	mailing := []data.Mailing{}
-	json.Unmarshal(file, &mailing)
+	mailings := []data.Mailing{}
+	json.Unmarshal(file, &mailings)
 
-	for _, val := range mailing {
+	for _, mailing := range mailings {
 		_, _ = s.NewJob(
 			gocron.DailyJob(
 				1,
 				gocron.NewAtTimes(
 					gocron.NewAtTime(
-						uint(val.SendTime.Hour()), 
-						uint(val.SendTime.Minute()), 
+						uint(mailing.SendTime.Hour()), 
+						uint(mailing.SendTime.Minute()), 
 						0,
 					),
 				),
 			),
 			gocron.NewTask(
-				sendDaily,
-				val,
+				dailyMessage,
+				mailing,
 			),
 		)
 	}
@@ -139,13 +121,14 @@ func SetupScheduler() gocron.Scheduler {
 }
 
 func addSendJob(
-		scheduler gocron.Scheduler,
-		chatID int,
+		scheduler	gocron.Scheduler,
+		chatID		int,
 		newSendTime time.Time,
+		newDate 	time.Time,
 	) {
 	hours, minutes := uint(newSendTime.Hour()), uint(newSendTime.Minute())
 
-	updatedMailing := updateTime(chatID, newSendTime)
+	updatedMailing := updateTime(chatID, newSendTime, newDate)
 
 	_, _ = scheduler.NewJob(
 		gocron.DailyJob(
@@ -155,10 +138,8 @@ func addSendJob(
 			),
 		),
 		gocron.NewTask(
-			sendDaily,
+			dailyMessage,
 			updatedMailing,
 		),
 	)
-
-	
 }

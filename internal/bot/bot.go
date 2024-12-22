@@ -4,6 +4,7 @@ import (
 	"days-remaining/internal/data"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/go-co-op/gocron/v2"
 )
@@ -16,11 +17,12 @@ func SendMessage(update data.Update, msg string) {
 	sendMessage(update.Message.Chat.ID, msg, data.None)
 }
 
-func SetDate(update data.Update) {
+func SetDate(sc gocron.Scheduler, update data.Update) {
 	var msg string
 	parsedDate, ok := parseDate(update.Message.Text); if ok {
 		log.Println(parsedDate)
-		updateDate(update.Message.Chat.ID, parsedDate)
+		addSendJob(sc, update.Message.Chat.ID, time.Time{}, parsedDate)
+		updateTime(update.Message.Chat.ID, time.Time{}, parsedDate)
 		msg = fmt.Sprintf(
 			data.SuccessDateChangeText, 
 			fmt.Sprintf("%02d\\.%02d\\.%04d",
@@ -30,7 +32,7 @@ func SetDate(update data.Update) {
 			),
 		)
 	} else {
-		log.Println(parsedDate)
+		msg = data.FailureDateChangeText
 	}
 	sendMessage(update.Message.Chat.ID, msg, data.MarkdownV2)
 }
@@ -39,7 +41,7 @@ func SetTime(sc gocron.Scheduler, update data.Update) {
 	var msg string
 	parsedTime, ok := parseTime(update.Message.Text); if ok {
 		log.Println(parsedTime)
-		addSendJob(sc, update.Message.Chat.ID, parsedTime)
+		addSendJob(sc, update.Message.Chat.ID, parsedTime, time.Time{})
 		msg = fmt.Sprintf(
 			data.SuccessTimeChangeText, 
 			fmt.Sprintf("%02d:%02d",

@@ -44,7 +44,7 @@ func main() {
 			case "/set_time":
 				bot.SetTime(s, update)
 			case "/set_date":
-				bot.SetDate(update)
+				bot.SetDate(s, update)
 			default:
 				// bot.SendMessage(update.Message.Chat.ID, update.Message.Text, "")
 			}
