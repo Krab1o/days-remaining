@@ -16,4 +16,4 @@ TZ=Asia/Dubai
 
 After timezone change all messages are going to be sent according to specified timezone
 
-3. Run docker-compose up --build and test your tg-bot.
+3. Run `docker-compose up --build` and test your tg-bot.
