@@ -1,23 +1,48 @@
 package data
 
-const DailyText = 
-`До конца университета осталось %d дней`
+import "time"
 
-// TODO: Change to bytes.Buffer version
-const IntroText =
-`Привет! Я бот, который считает, сколько дней осталось до конца университета. Я рассылаю эту информацию раз в день. Пожалуйста, укажи, во сколько ты хотел бы получать это сообщение? Время укажи с помощью команды /set_time в формате "ЧЧ:ММ" — часы и минуты (без кавычек)
-Например, "/set_time 14:10"
-установит время ежедневной рассылки на 14:10` 
+type Mailing struct {
+	ChatID	int			`json:"ID"`
+	SendTime 	time.Time	`json:"time"`
+	Date	time.Time	`json:"date"`
+}
 
-const SuccessChangeText = 
-`Хорошо! Каждый день в %s я буду оповещать тебя о том, сколько дней осталось до конца университета!`
+type Command struct{
+	Title 	string	`json:"command"`
+	Desc	string	`json:"description"`
+}
 
-const FailureChangeText =
-`Кажется, ты не указал время (или сделал это неправильно). Сделай это с помощью команды "/set_time ЧЧ:ММ" (часы и минуты, без кавычек)`
+type Update struct {
+	UpdateID int `json:"update_id"`
+	Message  struct {
+		MessageID int `json:"message_id"`
+		From      struct {
+			ID           int    `json:"id"`
+			IsBot        bool   `json:"is_bot"`
+			FirstName    string `json:"first_name"`
+			LastName     string `json:"last_name"`
+			Username     string `json:"username"`
+			LanguageCode string `json:"language_code"`
+		} `json:"from"`
+		Chat struct {
+			ID        int    `json:"id"`
+			FirstName string `json:"first_name"`
+			LastName  string `json:"last_name"`
+			Username  string `json:"username"`
+			Type      string `json:"type"`
+		} `json:"chat"`
+		Date int    `json:"date"`
+		Text string `json:"text"`
+	} `json:"message"`
+}
 
+type APIResponseUpdates struct {
+	Ok     bool 	`json:"ok"`
+	Result []Update `json:"result"`
+}
 
-type Sending struct {
-	ChatID	int64	`json:"ID"`
-	Hours	uint	`json:"hours"`
-	Minutes uint	`json:"minutes"`
+type Config struct {
+	Offset		int
+	Timeout		int
 }

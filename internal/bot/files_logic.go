@@ -1,4 +1,4 @@
-package schedule
+package bot
 
 import (
 	// "days-remaining/internal/data"
