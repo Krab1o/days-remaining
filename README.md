@@ -4,7 +4,7 @@ It's a telegram bot which counts how many days remaining to a particular date.
 It sends this information every day in particular time. Time and date can be
 specified by user.
 
-# Build
+## Build
 
 1. Clone repository.
 2. Create an .env-file, where you'll specify your own environment variables:
@@ -20,4 +20,4 @@ After timezone change all messages are going to be sent according to specified t
 
 ---
 
-Created mainly in learning purposes =)
+Created mainly on educational purposes.
